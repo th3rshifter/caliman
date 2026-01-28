@@ -1,0 +1,11 @@
+ingress-nginx:
+  enabled: false
+
+cert-manager:
+  enabled: false
+
+metrics-server:
+  enabled: false
+
+kong:
+  enabled: true

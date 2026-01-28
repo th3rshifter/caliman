@@ -1,0 +1,18 @@
+services:
+  gitlab:
+    image: gitlab/gitlab-ce:latest
+    container_name: gitlab
+    hostname: gitlab.lan
+    shm_size: "256m"
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://gitlab.lan'
+        gitlab_rails['gitlab_shell_ssh_port'] = ${GITLAB_SSH_PORT}
+    ports:
+      - "${GITLAB_HTTP_PORT}:80"
+      - "${GITLAB_SSH_PORT}:22"
+    volumes:
+      - ${RUNTIME_BASE}/config:/etc/gitlab
+      - ${RUNTIME_BASE}/logs:/var/log/gitlab
+      - ${RUNTIME_BASE}/data:/var/opt/gitlab
+    restart: unless-stopped

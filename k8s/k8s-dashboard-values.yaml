@@ -1,3 +1,4 @@
+# Values for Kubernetes Dashboard deployment
 ingress-nginx:
   enabled: false
 

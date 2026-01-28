@@ -1,3 +1,4 @@
+# GitLab Docker Compose Configuration
 services:
   gitlab:
     image: gitlab/gitlab-ce:latest

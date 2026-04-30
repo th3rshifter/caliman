@@ -1,0 +1,14 @@
+stages:
+  - build
+  - push
+
+build:
+  stage: build
+  script:
+    - docker build -t caliman-app .
+
+push:
+  stage: push
+  script:
+    - docker tag caliman-app registry.example.com/caliman:latest
+    - docker push registry.example.com/caliman:latest

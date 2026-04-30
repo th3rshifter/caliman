@@ -1,0 +1,6 @@
+- name: Install monitoring exporters
+  hosts: caliman_nodes
+  become: true
+
+  roles:
+    - node_exporter

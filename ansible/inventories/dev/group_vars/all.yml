@@ -1,0 +1,11 @@
+env_name: dev
+
+app_name: caliman
+app_port: 8080
+app_log_level: debug
+
+node_exporter_version: "1.8.2"
+node_exporter_port: 9100
+
+docker_users:
+  - ubuntu

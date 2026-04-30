@@ -1,0 +1,11 @@
+timezone: Europe/Moscow
+
+base_packages:
+  - curl
+  - wget
+  - git
+  - vim
+  - htop
+  - ca-certificates
+  - gnupg
+  - lsb-release

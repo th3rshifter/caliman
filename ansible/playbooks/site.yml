@@ -1,0 +1,9 @@
+- name: Configure Caliman infrastructure
+  hosts: caliman_nodes
+  become: true
+
+  roles:
+    - common
+    - docker
+    - node_exporter
+    - app_config

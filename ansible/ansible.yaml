@@ -1,0 +1,15 @@
+- hosts: all
+  become: yes
+  tasks:
+    - name: Install docker
+      apt:
+        name: docker.io
+        state: present
+
+    - name: Run node exporter
+      docker_container:
+        name: node-exporter
+        image: prom/node-exporter
+        state: started
+        ports:
+          - "9100:9100"

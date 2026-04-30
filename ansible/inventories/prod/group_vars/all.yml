@@ -1,0 +1,13 @@
+env_name: prod
+
+app_name: caliman
+app_port: 8080
+app_log_level: warning
+app_config_dir: /opt/caliman
+
+node_exporter_version: "1.8.2"
+node_exporter_port: 9100
+node_exporter_user: node_exporter
+
+docker_users:
+  - ubuntu

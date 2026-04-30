@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: caliman
+spec:
+  tls:
+    - hosts:
+        - caliman.local
+      secretName: tls-secret
+  rules:
+    - host: caliman.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: caliman-service
+                port:
+                  number: 80

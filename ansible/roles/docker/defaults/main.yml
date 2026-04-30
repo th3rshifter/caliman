@@ -1,0 +1,5 @@
+docker_packages:
+  - docker.io
+  - docker-compose-plugin
+
+docker_users: []

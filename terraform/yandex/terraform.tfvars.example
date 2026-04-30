@@ -1,0 +1,12 @@
+# Yandex Cloud identifiers
+cloud_id       = "<cloud_id>"
+folder_id      = "<folder_id>"
+
+# Availability zone
+zone           = "<availability_zone>"
+
+# Ubuntu image ID
+image_id       = "<image_id>"
+
+# Public SSH key used for VM access
+ssh_public_key = "<public_ssh_key>"

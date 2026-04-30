@@ -1,11 +1,44 @@
+# IDE
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+
+# env files
+.env
+.env.*
+!.env.example
+
+# secrets
 secrets/
 *.key
 *.pem
 *.crt
 *.p12
-.env
-.env.*
-!.env.example
-.idea/
-.vscode/
-__pycache__/
+
+# Terraform
+.terraform/
+terraform.tfstate
+terraform.tfstate.*
+*.tfvars
+*.tfplan
+crash.log
+
+# Ansible
+*.retry
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-data/

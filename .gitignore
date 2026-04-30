@@ -1,2 +1,8 @@
-README.MD
-caliman-server
+secrets/
+*.key
+*.pem
+*.crt
+*.p12
+.env
+.env.*
+!.env.example

@@ -1,0 +1,5 @@
+{% if common_sudo_without_password %}
+{{ common_admin_user }} ALL=(ALL) NOPASSWD:ALL
+{% else %}
+{{ common_admin_user }} ALL=(ALL) ALL
+{% endif %}

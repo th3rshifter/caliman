@@ -1,0 +1,6 @@
+title = "Caliman gitleaks config"
+
+paths = [
+  '''secrets/.*''',
+  '''.*\.example\.yaml'''
+]

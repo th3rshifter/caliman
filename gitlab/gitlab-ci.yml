@@ -1,14 +1,27 @@
 stages:
+  - test
+  - security
   - build
   - push
+  - deploy
 
-build:
+lint:
+  stage: test
+  script:
+    - pip install flake8
+    - flake8 app/
+
+trivy_scan:
+  stage: security
+  script:
+    - trivy image caliman-app:latest
+
+docker_build:
   stage: build
   script:
-    - docker build -t caliman-app .
+    - docker build -t caliman-app:$CI_COMMIT_SHA .
 
-push:
-  stage: push
+deploy:
+  stage: deploy
   script:
-    - docker tag caliman-app registry.example.com/caliman:latest
-    - docker push registry.example.com/caliman:latest
+    - echo "ArgoCD sync triggered"

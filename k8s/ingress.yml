@@ -2,11 +2,14 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: caliman
+  namespace: caliman
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
 spec:
   tls:
     - hosts:
         - caliman.local
-      secretName: tls-secret
+      secretName: caliman-tls
   rules:
     - host: caliman.local
       http:

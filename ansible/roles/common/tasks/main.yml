@@ -2,20 +2,105 @@
   ansible.builtin.apt:
     update_cache: true
     cache_valid_time: 3600
+  when: ansible_facts.os_family == "Debian"
 
 - name: Install base packages
   ansible.builtin.apt:
-    name:
-      - curl
-      - wget
-      - git
-      - vim
-      - htop
-      - ca-certificates
-      - gnupg
-      - lsb-release
+    name: "{{ common_packages }}"
     state: present
+  when: ansible_facts.os_family == "Debian"
 
 - name: Set timezone
   community.general.timezone:
-    name: Europe/Moscow
+    name: "{{ common_timezone }}"
+
+- name: Configure chrony via Jinja2 template
+  ansible.builtin.template:
+    src: chrony.conf.j2
+    dest: /etc/chrony/chrony.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart chrony
+  when: ansible_facts.os_family == "Debian"
+
+- name: Enable and start chrony
+  ansible.builtin.systemd:
+    name: chrony
+    enabled: true
+    state: started
+  when: ansible_facts.os_family == "Debian"
+
+- name: Create admin group
+  ansible.builtin.group:
+    name: "{{ common_admin_group }}"
+    state: present
+
+- name: Create admin user
+  ansible.builtin.user:
+    name: "{{ common_admin_user }}"
+    group: "{{ common_admin_group }}"
+    shell: "{{ common_admin_shell }}"
+    create_home: true
+    state: present
+
+- name: Create SSH directory for admin user
+  ansible.builtin.file:
+    path: "/home/{{ common_admin_user }}/.ssh"
+    state: directory
+    owner: "{{ common_admin_user }}"
+    group: "{{ common_admin_group }}"
+    mode: "0700"
+
+- name: Install authorized SSH keys
+  ansible.builtin.authorized_key:
+    user: "{{ common_admin_user }}"
+    key: "{{ item }}"
+    state: present
+  loop: "{{ common_admin_authorized_keys }}"
+  when: common_admin_authorized_keys | length > 0
+
+- name: Render sudoers file from Jinja2 template
+  ansible.builtin.template:
+    src: sudoers.j2
+    dest: "/etc/sudoers.d/{{ common_admin_user }}"
+    owner: root
+    group: root
+    mode: "0440"
+    validate: "visudo -cf %s"
+
+- name: Render hardened sshd_config from Jinja2 template
+  ansible.builtin.template:
+    src: sshd_config.j2
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: "0600"
+    validate: "sshd -t -f %s"
+  notify: Restart ssh
+
+- name: Render sysctl config from Jinja2 template
+  ansible.builtin.template:
+    src: sysctl.conf.j2
+    dest: /etc/sysctl.d/99-caliman.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Apply sysctl
+
+- name: Render MOTD from Jinja2 template
+  ansible.builtin.template:
+    src: motd.j2
+    dest: /etc/motd
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Configure logrotate retention policy
+  ansible.builtin.template:
+    src: logrotate-caliman.j2
+    dest: /etc/logrotate.d/caliman
+    owner: root
+    group: root
+    mode: "0644"
+    validate: "logrotate -d %s"

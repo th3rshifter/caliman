@@ -1,0 +1,14 @@
+{% for path in common_logrotate_paths %}
+{{ path }}
+{% endfor %}
+{
+    daily
+    rotate {{ common_logrotate_retention_days }}
+    missingok
+    notifempty
+    compress
+    delaycompress
+    copytruncate
+    dateext
+    create 0640 root adm
+}

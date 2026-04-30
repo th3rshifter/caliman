@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: caliman-config
+  namespace: caliman
+data:
+  APP_ENV: "dev"
+  APP_LOG_LEVEL: "info"
+  APP_PORT: "8080"

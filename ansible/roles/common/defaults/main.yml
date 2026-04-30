@@ -1,11 +1,46 @@
-timezone: Europe/Moscow
+common_timezone: Europe/Moscow
 
-base_packages:
+common_packages:
+  - htop
+  - git
   - curl
   - wget
-  - git
   - vim
-  - htop
+  - unzip
   - ca-certificates
   - gnupg
   - lsb-release
+  - chrony
+  - logrotate
+
+common_admin_user: deploy
+common_admin_group: deploy
+common_admin_shell: /bin/bash
+common_admin_authorized_keys:
+  - "ssh-rsa CHANGE_ME_REPLACE_WITH_REAL_PUBLIC_KEY"
+
+common_sudo_without_password: true
+
+common_motd_project: caliman
+common_motd_environment: dev
+
+common_ssh_port: 22
+common_ssh_permit_root_login: "no"
+common_ssh_password_authentication: "no"
+common_ssh_pubkey_authentication: "yes"
+
+common_sysctl_settings:
+  net.ipv4.tcp_syncookies: 1
+  net.ipv4.conf.all.rp_filter: 1
+  net.ipv4.conf.default.rp_filter: 1
+  net.ipv4.conf.all.accept_redirects: 0
+  net.ipv4.conf.default.accept_redirects: 0
+  net.ipv4.conf.all.send_redirects: 0
+  net.ipv4.conf.default.send_redirects: 0
+  vm.swappiness: 10
+
+common_logrotate_retention_days: 7
+common_logrotate_paths:
+  - /var/log/*.log
+  - /var/log/syslog
+  - /var/log/auth.log

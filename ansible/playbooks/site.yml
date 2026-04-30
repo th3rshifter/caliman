@@ -1,9 +1,8 @@
-- name: Configure Caliman infrastructure
+- name: Basic Linux server bootstrap
   hosts: caliman_nodes
   become: true
+  gather_facts: true
 
   roles:
     - common
     - docker
-    - node_exporter
-    - app_config

@@ -15,12 +15,13 @@ venv/
 .env.*
 !.env.example
 
-# secrets
+# secrets and certificates
 secrets/
 *.key
 *.pem
 *.crt
 *.p12
+nginx/certs/*
 
 # Terraform
 .terraform/

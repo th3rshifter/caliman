@@ -6,7 +6,7 @@ metadata:
   labels:
     app.kubernetes.io/name: caliman
 spec:
-  replicas: 2
+  replicas: 1
   revisionHistoryLimit: 5
   selector:
     matchLabels:

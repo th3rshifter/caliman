@@ -1,5 +1,19 @@
 name: caliman
 
+#Anchors
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+x-security: &default-security
+  security_opt:
+    - no-new-privileges:true
+  cap_drop:
+    - ALL
+
+# Services
 services:
   caliman-app:
     build:
@@ -13,25 +27,35 @@ services:
     user: "10001:10001"
     ports:
       - "127.0.0.1:8080:8080"
+
+    # Используем env_file для dev-окружения вместо inline-переменных.
+    # Создайте файл .env.app (и добавьте его в .gitignore).
+    env_file:
+      - path: .env.app
+        required: false        # Позволяет запустить без файла (fallback — defaults ниже)
     environment:
-      APP_ENV: dev
-      APP_LOG_LEVEL: debug
-      APP_PORT: 8080
+      APP_ENV: ${APP_ENV:-dev}
+      APP_LOG_LEVEL: ${APP_LOG_LEVEL:-debug}
+      APP_PORT: ${APP_PORT:-8080}
+
     tmpfs:
       - /tmp:size=64m,noexec,nosuid,nodev
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
+
+    <<: *default-security
+
+    # Healthcheck переключён с curl на python — curl не нужен в образе.
+    # Теперь можно убрать curl из Dockerfile.
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8080/health || exit 1"]
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health')\""]
       interval: 30s
       timeout: 5s
       retries: 3
       start_period: 15s
+
     networks:
       - backend
       - monitoring
+
     deploy:
       resources:
         limits:
@@ -39,14 +63,11 @@ services:
           memory: 256M
         reservations:
           memory: 128M
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
+
+    logging: *default-logging
 
   prometheus:
-    image: prom/prometheus:v2.55.1
+    image: prom/prometheus:v3.3.1
     restart: unless-stopped
     init: true
     user: "65534:65534"
@@ -60,11 +81,7 @@ services:
       - "--storage.tsdb.path=/prometheus"
       - "--storage.tsdb.retention.time=7d"
       - "--web.enable-lifecycle"
-      - "--web.enable-admin-api=false"
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
+    <<: *default-security
     healthcheck:
       test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:9090/-/healthy || exit 1"]
       interval: 30s
@@ -80,14 +97,11 @@ services:
           memory: 512M
         reservations:
           memory: 256M
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
+    logging: *default-logging
 
+  #Grafana
   grafana:
-    image: grafana/grafana:11.4.0
+    image: grafana/grafana:12.0.0
     restart: unless-stopped
     init: true
     user: "472:472"
@@ -101,15 +115,17 @@ services:
       GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
       GF_SECURITY_DISABLE_GRAVATAR: "true"
       GF_SERVER_ROOT_URL: http://localhost:3000
+      GF_ALERTING_ENABLED: "false"
+      GF_UNIFIED_ALERTING_ENABLED: "true"
     secrets:
       - grafana_admin_password
     volumes:
       - grafana-data:/var/lib/grafana
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
+    <<: *default-security
+    depends_on:
+      prometheus:
+        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:3000/api/health || exit 1"]
       interval: 30s
@@ -125,14 +141,11 @@ services:
           memory: 512M
         reservations:
           memory: 256M
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-
+    logging: *default-logging
+  
+  # Node Exporter
   node-exporter:
-    image: prom/node-exporter:v1.8.2
+    image: prom/node-exporter:v1.9.1
     restart: unless-stopped
     init: true
     pid: host
@@ -143,11 +156,14 @@ services:
       - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
     volumes:
       - /:/host:ro,rslave
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
+    <<: *default-security
     read_only: true
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1:9100/metrics || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     networks:
       - monitoring
     profiles:
@@ -159,24 +175,17 @@ services:
           memory: 128M
         reservations:
           memory: 64M
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-
+    logging: *default-logging
 secrets:
   grafana_admin_password:
     file: ./secrets/grafana_admin_password.txt
-
 volumes:
   prometheus-data:
   grafana-data:
-
 networks:
   backend:
     driver: bridge
     internal: true
-
   monitoring:
     driver: bridge
+    internal: true

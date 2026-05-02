@@ -38,4 +38,5 @@ find "$BACKUP_DIR" -name "prometheus-backup-*.tar.gz" \
   log "Deleted old backup: $f"
 done
 
-log "Done."
+log "Done. Current backups in $BACKUP_DIR:"
+ls -lh "$BACKUP_DIR"

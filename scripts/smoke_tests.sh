@@ -53,10 +53,6 @@ log "─────────────────────────
 smoke_test GET /health 200
 smoke_test GET /ready  200
 
-# Add more endpoints here as your app grows:
-# smoke_test GET  /api/v1/status 200
-# smoke_test POST /api/v1/echo   200
-
 # ─── Summary ──────────────────────────────────────────────
 log "────────────────────────────────────────"
 log "Results: ${PASSED} passed, ${FAILED} failed"
